@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-guaranteed-qos
+spec:
+  containers:
+  - name: nginx
+    image: nginx:latest
+    resources:                      # Memorz and CPU Requests and Limits are configured                               
+      limits:                       # The condition of identical CPU & Memory Requests and Limits are fulfilled.
+        cpu: "500m"
+        memory: "256Mi"
+      requests:
+        cpu: "500m"
+        memory: "256Mi"
