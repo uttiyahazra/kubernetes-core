@@ -18,6 +18,11 @@ k8s-rolling-update-deployment-75fd849485-2znhq   1/1     Running   0          46
 k8s-rolling-update-deployment-75fd849485-c9xsc   1/1     Running   0          46s
 k8s-rolling-update-deployment-75fd849485-jzgrl   1/1     Running   0          46s
 ```
+In any iteration of this illustration, the following command can be used to determine the correct container image version in the pods:
+
+```bash
+kubectl get pods -o jsonpath='{.items[*].spec.containers[*].image}'
+```
 
 Now, we have patched the deployment's image to latest version to exemplify the sequence of events that take place in course of rolling update deployment:
 

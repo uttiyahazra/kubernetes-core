@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-recreate-deployment
+  labels:
+    app: k8s-recreate-app
+spec:
+  replicas: 3
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: k8s-recreate-app
+  template:
+    metadata:
+      labels:
+        app: k8s-recreate-app
+    spec:
+      containers:
+      - name: k8s-recreate-app-container
+        image: nginx:1.23.1  # Initial image version
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "125m"
+          limits:
+            memory: "128Mi"
+            cpu: "250m"
