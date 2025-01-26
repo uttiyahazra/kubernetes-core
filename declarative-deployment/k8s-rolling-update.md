@@ -1,18 +1,33 @@
+#### Illustration of Kubernetes Rolling Update Deployment Strategy
+
+Rolling Update is Kubernetes default deployment strategy which ensures the application pods are updated gradually and by incrementally replacing the old pods which causes minimal or almost no downtime.
+
+In order to illustrate the same, we have applied a kubernetes deployment (manifest is part of repository) with the following command:
+
 ```bash
 $ kubectl apply -f k8s-rolling-update.yaml -n kube-core
 deployment.apps/k8s-rolling-update-deployment created
+```
 
+Afterwards, we checked the deployed pod's status as follows:
+
+```bash
 $ kubectl get po -n kube-core
 NAME                                             READY   STATUS    RESTARTS   AGE
 k8s-rolling-update-deployment-75fd849485-2znhq   1/1     Running   0          46s
 k8s-rolling-update-deployment-75fd849485-c9xsc   1/1     Running   0          46s
 k8s-rolling-update-deployment-75fd849485-jzgrl   1/1     Running   0          46s
+```
 
+Now, we have patched the deployment's image to latest version to exemplify the sequence of events that take place in course of rolling update deployment:
+
+```bash
 kubectl set image deployment/k8s-rolling-update-deployment k8s-rolling-update-app-container=nginx:latest -n kube-core
 deployment.apps/k8s-rolling-update-deployment image updated
+```
+With the above command execution, immediately the shell script _pod-status-check.sh_ was executed to closely monitor the events associated with rolling update, which shows the status of pods with an interval of 1 seconds, the statuses can be visualized as below:
 
-
-
+```bash
 NAME                                             READY   STATUS              RESTARTS   AGE
 k8s-rolling-update-deployment-6754f968c6-9x4vv   1/1     Running             0          32s
 k8s-rolling-update-deployment-6754f968c6-dgbz5   1/1     Terminating         0          32s
@@ -56,6 +71,8 @@ NAME                                             READY   STATUS    RESTARTS   AG
 k8s-rolling-update-deployment-6f9f9f7b5f-9lr47   1/1     Running   0          11s
 k8s-rolling-update-deployment-6f9f9f7b5f-kxbz2   1/1     Running   0          10s
 k8s-rolling-update-deployment-6f9f9f7b5f-pns44   1/1     Running   0          10s
+```
+
 
 
  kubectl rollout undo  deployment/k8s-rolling-update-deployment -n kube-core 
