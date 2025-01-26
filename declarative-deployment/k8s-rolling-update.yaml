@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-rolling-update-deployment
+  labels:
+    app: k8s-rolling-update-app
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2          # Maximum number of additional pods that can be created during the update (can be a number or percentage, e.g., "25%")
+      maxUnavailable: 1    # Maximum number of pods that can be unavailable during the update (can be a number or percentage, e.g., "25%")
+  selector:
+    matchLabels:
+      app: k8s-rolling-update-app
+  template:
+    metadata:
+      labels:
+        app: k8s-rolling-update-app
+    spec:
+      containers:
+      - name: k8s-rolling-update-app-container
+        image: nginx:1.23.1  # Initial image version
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "125m"
+          limits:
+            memory: "128Mi"
+            cpu: "250m"
