@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: k8s-sts-statefulset
+spec:
+  replicas: 3
+  serviceName: "k8s-sts-service"
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1  # Maximum number of unavailable pods during the update
+  minReadySeconds: 10  # Minimum seconds a pod must be ready before being considered available
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain  # Retain PVCs when the StatefulSet or its pods are deleted
+    whenScaled: Retain   # Retain PVCs when the StatefulSet is scaled down
+  selector:
+    matchLabels:
+      app: k8s-sts-app
+  template:
+    metadata:
+      labels:
+        app: k8s-sts-app
+    spec:
+      containers:
+      - name: k8s-sts-app-container
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: data-volume
+          mountPath: /usr/share/nginx/html
+        # Readiness Probe
+        readinessProbe:
+          exec:
+            command:   # Path to check for readiness
+              - cat 
+              - /etc/resolv.conf
+          initialDelaySeconds: 5  # Wait 5 seconds before starting the probe
+          periodSeconds: 10       # Check every 10 seconds
+          successThreshold: 1     # 1 successful check means the pod is ready
+          failureThreshold: 3     # 3 failed checks mean the pod is not ready
+  volumeClaimTemplates:
+  - metadata:
+      name: data-volume
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi

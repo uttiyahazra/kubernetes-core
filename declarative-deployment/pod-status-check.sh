@@ -8,6 +8,6 @@ while true; do
   # Execute the kubectl command
   kubectl get po -n kube-core
 
-  # Wait for 2 seconds before running the command again
+  # Wait for 1 second before running the command again
   sleep 1
 done
