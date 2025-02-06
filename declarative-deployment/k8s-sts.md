@@ -167,3 +167,237 @@ NAME                    READY   STATUS        RESTARTS   AGE
 k8s-sts-statefulset-0   0/1     Terminating   0          2m27s
 ```
 
+##### Rolling Update
+
+In order to illustrate the Rolling Update feature, we first observed the Pod status with old container image version by executing following command:
+
+```bash
+kubectl get pods -n kube-core  -o custom-columns='POD NAME:.metadata.name,NAMESPACE:.metadata.namespace,IMAGES:.spec.containers[*].image,STATUS:.status.phase'
+
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+```
+
+In order to observe the rolling update events, we then patched the container image version to a newer version using following command:
+
+```bash
+kubectl patch statefulset k8s-sts-statefulset --type='json' -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/image", "value":"registry.k8s.io/nginx-slim:0.24"}]'
+```
+We observed the subsequent rolling updates of respective Pods which followed a reverse oridnal order as follows:
+
+```bash
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.21   Succeeded
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Pending
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Pending
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Pending
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Pending
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.24   Pending
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.24   Pending
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.21   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.24   Pending
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.24   Pending
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+POD NAME                NAMESPACE   IMAGES                            STATUS
+k8s-sts-statefulset-0   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+k8s-sts-statefulset-1   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
+```
+###### Important Considerations
+
+Please note that, in our StatefulSet manifest, the _minReadySeconds: 10_ is configured which implies that during the rolling update after the Pod becomes ready, the K8s willa dd additional 10 Seconds to mark the Pod as fully available and proceeding to the preceeding pod to enforce the RollingUpdate. The _podManagementPolicy_ with _OrderedReady_ renders this behaviour perfectly, whereas the _Parallel_ value with paralleled partitioned rolling update is not verified in current course.
+
+It is also worth noticing that, we have the value _maxUnavailable: 2_ set in current example which allows the rolling upgrade to be effective to at most 1 Pod simultaneously.

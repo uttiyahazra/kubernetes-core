@@ -1,4 +1,4 @@
-#### Ollustrations of Kubernetes Core Concepts
+#### llustrations of Kubernetes Core Concepts
 - ##### Environment specification
 
 ###### Operating System

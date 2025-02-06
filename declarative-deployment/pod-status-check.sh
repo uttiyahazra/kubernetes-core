@@ -6,7 +6,7 @@ while true; do
   clear
 
   # Execute the kubectl command
-  kubectl get po -n kube-core
+  kubectl get pods -n kube-core  -o custom-columns='POD NAME:.metadata.name,NAMESPACE:.metadata.namespace,IMAGES:.spec.containers[*].image,STATUS:.status.phase'
 
   # Wait for 1 second before running the command again
   sleep 1

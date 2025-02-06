@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
       - name: k8s-sts-app-container
-        image: nginx:latest
+        image: registry.k8s.io/nginx-slim:0.21
         ports:
         - containerPort: 80
         volumeMounts:
