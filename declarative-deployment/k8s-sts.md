@@ -398,6 +398,6 @@ k8s-sts-statefulset-2   kube-core   registry.k8s.io/nginx-slim:0.24   Running
 ```
 ###### Important Considerations
 
-Please note that, in our StatefulSet manifest, the _minReadySeconds: 10_ is configured which implies that during the rolling update after the Pod becomes ready, the K8s willa dd additional 10 Seconds to mark the Pod as fully available and proceeding to the preceeding pod to enforce the RollingUpdate. The _podManagementPolicy_ with _OrderedReady_ renders this behaviour perfectly, whereas the _Parallel_ value with paralleled partitioned rolling update is not verified in current course.
+Please note that in our StatefulSet manifest, the _minReadySeconds: 10_ is configured which implies that during the rolling update after the Pod becomes ready, the K8s willa dd additional 10 Seconds to mark the Pod as fully available and proceeding to the preceeding pod to enforce the RollingUpdate. The _podManagementPolicy_ with _OrderedReady_ renders this behaviour perfectly, whereas the _Parallel_ value with paralleled partitioned rolling update is not verified in current course.
 
 It is also worth noticing that, we have the value _maxUnavailable: 2_ set in current example which allows the rolling upgrade to be effective to at most 1 Pod simultaneously.
